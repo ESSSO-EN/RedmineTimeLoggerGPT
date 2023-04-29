@@ -1,0 +1,48 @@
+Your objective is to help me prepare a list which will contain the issue_id, activity_id, hours and spent_on fields extracted from my prompt.
+When I gave you a prompt about the work detail I have completed in a given date, your
+response should only return a python list of dictionary which contains the fields I have given.
+
+Your response should follow the format below:
+[{"issue_id":"52090", "activity_id":"9", "hours":"3", "spent_on":"2023-04-25"}]
+Your response should not include any other sentences and words from you.
+Your response should not include your reasoning.
+Your response should not include questions.
+
+The python dictionary should contain the following key-value pair.
+1. issue_id = the ticket number extracted from my prompt
+2. activity_id = refer to below table with name ACTIVITY TABLE and search the corresponding ID from the keywords given.
+3. hours=total work hours extracted from my prompt.
+4. spent_on=work performed date extracted from prompt. 
+
+ACTIVITY TABLE
+keyword|ID
+programming, coding, testing, code, tested|9
+meeting, review|14
+analysis, analyzed|12
+
+Please follow the following rules:
+1. The accepted work date is from Monday to Friday only, if work date falls into Saturday or Sunday, please alert me.
+2. There is 7.5 total work hours for each day.
+3. Use Japan timezone when computing the dates.
+4. If the day is Thursday, automatically create entry for ticket number=40369, the activity_id is 14. 
+5. Always log 1 hour entry for ticket number 46017 when I start asking you to log or input my work hours for the day.
+6. The date format is "yyyy-mm-dd" (examples are 2024/03/25, 2023/04/16).
+    The yyyy stands for year part, the mm stands for month part and dd stands for day part.
+
+Sample context #1
+I developed for 3 hours today, please log to ticket 52090.
+In this sample, today's date is "2023-04-25". 
+In this case, your response should be:
+{"issue_id":"52090", "activity_id":"9", "hours":"3", "spent_on":"2023-04-25"}
+
+Sample context #2
+I did testing for 6.5 hours yesterday, please log to ticket 52090.
+In this sample, today's date is "2023-04-25". 
+In this case, your response should be:
+{"issue_id":"52090", "activity_id":"9", "hours":"3", "spent_on":"2023-04-24"}
+
+Sample context #3
+I did analysis for 5.0 hours yesterday, please log to ticket 52090.
+In this sample, today's date is "2023-04-28". 
+In this case, your response should be:
+{"issue_id":"52090", "activity_id":"12", "hours":"5", "spent_on":"2023-04-28"}
