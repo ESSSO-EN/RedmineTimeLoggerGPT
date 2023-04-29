@@ -15,4 +15,4 @@ Timelogger Agent breaks it down into the ff format and logs it to Redmine:
 
 
 The code is not yet refactored. 
-This is just a simple tool which will help me at work and but do have plans on adding few features in the near future.
+This is just a simple tool which will helps me at work and but do have plans on adding few features in the near future.
