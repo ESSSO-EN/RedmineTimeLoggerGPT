@@ -13,6 +13,6 @@ Last Wednesday I worked on testing ticket 7777 and did 2.5 hours.
 [{"issue_id":"8888", "activity_id"="9", "hours":"3", "spent_on":"2023/04/28"}]
 [{"issue_id":"7777", "activity_id"="10", "hours":"2.5", "spent_on":"2023/04/26"}]
 
-The code is not yet refactored and better error-handling is needed.
+The code is not yet refactored and better error-handling is needed.\
 This is the initial use case which popped into my mind while checking out the excitement sorrounding around this cool tech chatGPT and the overall AI/LLM ecosystem. 
 This is just a simple tool which helps me at work at this time, but I do have plans on adding features bit by bit.
