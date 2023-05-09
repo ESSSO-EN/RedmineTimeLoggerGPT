@@ -214,7 +214,7 @@ def timelogger_agent(system_message):
                     hours = my_dict["hours"]
                     spent_on = my_dict["spent_on"]
 
-                    task = redmine.isssue.get(issue_id)
+                    task = redmine.issue.get(issue_id)
 
                     print(f'issue_id:{issue_id} ({task.subject})')
                     print(f'activity_id:{activity_id} (9:開発作業), 12:調査・検討, 14:会議・レビュー・指導')
