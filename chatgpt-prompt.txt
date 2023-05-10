@@ -4,7 +4,6 @@ You will have 2 tasks below:
  -task_id: 12345
  -task_id: 14344
 When I gave you prompt that I have started working on a given task_id, include that task_id in the list.
-Next, when I gave you a prompt that telling you that I want to log time, always show me the above list.
 
 2. And, help me prepare a list which will contain the task_id, activity_id, hours and spent_on fields 
 extracted from my prompt.
@@ -32,7 +31,7 @@ meeting, review|14
 analysis, analyzed|12
 
 Please follow the following rules:
-1. The accepted work date is from Monday to Friday only, if work date falls into Saturday or Sunday, please alert me.
+1. The accepted work date is from Monday, Tuesday, Wednesday, Thursday and Friday only, if work date falls into Saturday or Sunday, please alert me.
 2. There is 7.5 total work hours for each day.
 3. Use Japan timezone when computing the dates.
 4. The date format is "yyyy-mm-dd" (examples are 2024/03/25, 2023/04/16).

@@ -5,6 +5,7 @@ import os
 import pinecone
 import time
 import re
+import ast
 
 from redminelib import Redmine
 from redminelib.exceptions import ResourceNotFoundError, ResourceSetIndexError
@@ -181,7 +182,7 @@ def timelogger_agent(system_message):
     while True:
         prompt = input("\033[95m\033[1m" + "\nYou: " + "\033[0m\033[0m")
 
-        if prompt.lower() == "quit":
+        if prompt.lower() in ("save()", "quit()"):
             payload = list()
             
             print("\nStoring info into assistant's memory...")
@@ -193,62 +194,76 @@ def timelogger_agent(system_message):
             index.delete(ids=["Task"])
             payload.append(("Task", vector, {"role": "assistant", "content": response}))
             index.upsert(payload, namespace="Task List 1")    
-            break
+            
+            if prompt.lower() == "quit()":
+                break
           
 
         messages.append({"role": "user", "content": prompt})
         response = openai_call(messages)
         messages.append({"role": "assistant", "content": response})
-        print("\033[95m\033[1m" + "\nAssistant: " + "\033[0m\033[0m" + response + "\n")
+        print("\033[95m\033[1m" + "\nAssistant: " + "\033[0m\033[0m" + response + "\n", flush=True)
 
-        if re.search('\[\{.*\}\]' ,response):
-            # get_ticket_detail(issue_id)
+        regex_pattern = '[\{].*[\}]'
+        matched = re.findall(regex_pattern, response)
+
+        if matched:
+            # connect to redmine
             redmine = Redmine(REDMINE_URL, key=REDMINE_API_KEY)
 
+            print('***************START*********************', flush=True)
             try:
-                my_list = json.loads(re.findall('\[\{.*\}\]' ,response)[0])
-                print('************************************')
-                for my_dict in my_list:
+                # loop thru list of dictionary
+                for my_str in matched:
+                    # convert dictionary from string to dict type
+                    my_dict = ast.literal_eval(my_str)
+                    # assign dict values to variables
                     issue_id = my_dict["issue_id"]
                     activity_id = my_dict["activity_id"]
                     hours = my_dict["hours"]
                     spent_on = my_dict["spent_on"]
 
+                    # get redmine ticket info
                     task = redmine.issue.get(issue_id)
 
-                    print(f'issue_id:{issue_id} ({task.subject})')
-                    print(f'activity_id:{activity_id} (9:開発作業), 12:調査・検討, 14:会議・レビュー・指導')
-                    print(f'hours:{hours}')
-                    print(f'spent_on:{spent_on}')
-                    print('************************************')
+                    # display breakdown of time etc.
+                    print(f'issue_id:{issue_id} ({task.subject})', flush=True)
+                    print(f'activity_id:{activity_id} (9:開発作業), 11:検証・テスト作業, 12:調査・検討, 14:会議・レビュー・指導', flush=True)
+                    print(f'hours:{hours}', flush=True)
+                    print(f'spent_on:{spent_on}', flush=True)
+                    print('-------------------------------------', flush=True)
+
             except Exception as err:
                 print(f"Error has occured. {err}")
                 return err
+            print('*************END***********************', flush=True)
 
             # REDMINE FROM HERE
             confirm = input("\033[95m\033[1m" + "Assistant: Proceed to log this (Y/N)?" + "\033[0m\033[0m")
-            if confirm.strip().upper() == 'Y':
+            if confirm.strip().lower() == 'y':
                 try:    
                     # get redmine current userid
                     current_user_id = redmine.user.get('me').id
 
-                    # loop the list and log the breakdown to redmine
-                    for my_dict in my_list:
+                    # loop thru the list of dictionary
+                    for my_str in matched:
+                        # convert dictionary from string to dict type
+                        my_dict = ast.literal_eval(my_str)
+                        # assign dict values to variables
                         issue_id = my_dict["issue_id"]
                         activity_id = my_dict["activity_id"]
                         hours = my_dict["hours"]
                         spent_on = my_dict["spent_on"]
-
+                        # log the breakdown to redmine
                         time_entry = redmine.time_entry.new()
                         time_entry.issue_id = issue_id
                         time_entry.spent_on = spent_on
                         time_entry.hours = hours
                         time_entry.activity_id = activity_id
                         time_entry.save()
-
                         # verify if saved
                         time_entries = redmine.time_entry.filter(user_id=current_user_id, issue_id=issue_id, limit=1, from_date=spent_on, to_date=spent_on)
-                        print(f'Successfully logged issue:{time_entries[0].issue}, hours:{time_entries[0].hours}, spent_on:{time_entries[0].spent_on}')
+                        print(f'Successfully logged issue:{time_entries[0].issue}, hours:{time_entries[0].hours}, spent_on:{time_entries[0].spent_on}', flush=True)
 
                 except (ResourceNotFoundError):
                     print ('Not found')
@@ -266,5 +281,6 @@ if __name__ == "__main__":
         #print(content)
     # execute the agent
     timelogger_agent(str(content))
+    # Uncomment for debugging purpose
     #delete_namespace("Task List 1")
     #delete_namespace("Objective")
