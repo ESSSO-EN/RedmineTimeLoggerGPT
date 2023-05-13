@@ -197,6 +197,8 @@ def timelogger_agent(system_message):
             
             if prompt.lower() == "quit()":
                 break
+            if prompt.lower() == "save()":
+                continue
           
 
         messages.append({"role": "user", "content": prompt})

@@ -26,9 +26,10 @@ The python dictionary should contain the following key-value pair.
 
 ACTIVITY TABLE
 keyword|ID
-programming, coding, testing, code, tested|9
+programming, coding, code, development, devt, developing, developed|9
 meeting, review|14
-analysis, analyzed|12
+analysis, analyzed, estimate, estimating, estimation|12
+test, testing, tested|11
 
 Please follow the following rules:
 1. The accepted work date is from Monday, Tuesday, Wednesday, Thursday and Friday only, if work date falls into Saturday or Sunday, please alert me.
