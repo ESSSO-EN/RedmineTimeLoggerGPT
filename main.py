@@ -133,7 +133,26 @@ def openai_call(
         else:
             break
 
-def timelogger_agent(system_message):
+def taskmanager_agent(payload, messages):
+    print("\nStoring info into assistant's memory...")
+    messages.append({"role": "user", "content": "Please give my task list"})
+    response = openai_call(messages)
+    
+    # Insert task list into picone
+    vector=gpt_embedding(response)
+    index.delete(ids=["Task"])
+    payload.append(("Task", vector, {"role": "assistant", "content": response}))
+    index.upsert(payload, namespace="Task List 1")   
+
+
+def timelogger_agent(prompt, messages):
+    messages.append({"role": "user", "content": prompt})
+    response = openai_call(messages)
+    messages.append({"role": "assistant", "content": response})
+    print("\033[95m\033[1m" + "\nAssistant: " + "\033[0m\033[0m" + response + "\n", flush=True)
+    return response
+
+def main(system_message):
     # set openai key
     openai.api_key = OPENAI_API_KEY
     
@@ -185,26 +204,28 @@ def timelogger_agent(system_message):
         if prompt.lower() in ("save()", "quit()"):
             payload = list()
             
-            print("\nStoring info into assistant's memory...")
-            messages.append({"role": "user", "content": "Please give my task list"})
-            response = openai_call(messages)
+            # print("\nStoring info into assistant's memory...")
+            # messages.append({"role": "user", "content": "Please give my task list"})
+            # response = openai_call(messages)
             
-            # Insert task list into picone
-            vector=gpt_embedding(response)
-            index.delete(ids=["Task"])
-            payload.append(("Task", vector, {"role": "assistant", "content": response}))
-            index.upsert(payload, namespace="Task List 1")    
-            
+            # # Insert task list into picone
+            # vector=gpt_embedding(response)
+            # index.delete(ids=["Task"])
+            # payload.append(("Task", vector, {"role": "assistant", "content": response}))
+            # index.upsert(payload, namespace="Task List 1")    
+            taskmanager_agent(payload, messages)
+
             if prompt.lower() == "quit()":
                 break
             if prompt.lower() == "save()":
                 continue
           
 
-        messages.append({"role": "user", "content": prompt})
-        response = openai_call(messages)
-        messages.append({"role": "assistant", "content": response})
-        print("\033[95m\033[1m" + "\nAssistant: " + "\033[0m\033[0m" + response + "\n", flush=True)
+        # messages.append({"role": "user", "content": prompt})
+        # response = openai_call(messages)
+        # messages.append({"role": "assistant", "content": response})
+        # print("\033[95m\033[1m" + "\nAssistant: " + "\033[0m\033[0m" + response + "\n", flush=True)
+        response = timelogger_agent(messages, prompt)
 
         regex_pattern = '[\{].*[\}]'
         matched = re.findall(regex_pattern, response)
@@ -282,7 +303,7 @@ if __name__ == "__main__":
         content=file.read()
         #print(content)
     # execute the agent
-    timelogger_agent(str(content))
+    main(str(content))
     # Uncomment for debugging purpose
     #delete_namespace("Task List 1")
     #delete_namespace("Objective")
